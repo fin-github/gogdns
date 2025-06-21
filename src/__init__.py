@@ -35,6 +35,32 @@ def dns_type_to_code(dns_type: str) -> int:
 
     return dns_types.get(dns_type.upper(), -1)
 
+def _dohreq(domain: str, rrtype: str,
+            check: bool = True,
+            dnssec_ok: bool = False,
+            subnet: str = "0.0.0.0/0") -> list: # list being the results
+    baseurl = "https://dns.google/resolve"
+    
+    params = {
+        "name": domain,
+        "type": rrtype,
+        "cd": str(int(not check)), # Turns True into 1 (False into 0) then into "1" (same for false)
+        "do": str(int(dnssec_ok)), # Turns True into 1 (False into 0) then into "1" (same for false)
+        "edns_client_subnet": subnet
+    }
+    
+    res = r.get(baseurl, params=params)
+    jsondata = res.json()
+    
+    if jsondata.get("Status") != 0 or "Answer" not in jsondata:
+        return None
+    
+    results = []
+    for entry in jsondata["Answer"]:
+        if entry["type"] == dns_type_to_code(rrtype):
+            results.append(entry["data"])
+    return results
+
 def gets(domain: str):
     ...
 
