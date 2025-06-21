@@ -62,6 +62,6 @@ def _dohreq(domain: str, rrtype: str,
     return results
 
 def gets(domain: str):
-    ...
+    return _dohreq(domain, "A")
 
 __all__ = ["gets"]
