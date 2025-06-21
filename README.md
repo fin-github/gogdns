@@ -1,1 +1,1 @@
-"# gogdns" 
+# gogdns"
